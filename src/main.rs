@@ -9,14 +9,6 @@ fn win_guid() -> String {
     GUID::build_from_components(guid.data1, guid.data2, guid.data3, &guid.data4).to_string()
 }
 
-#[cfg(macos)]
-fn win_guid() -> String {
-    use windows::Win32::System::Com::CoCreateGuid;
-
-    let guid = unsafe { CoCreateGuid() }.unwrap();
-    GUID::build_from_components(guid.data1, guid.data2, guid.data3, &guid.data4).to_string()
-}
-
 fn generate_account(phone: &str) -> String {
     let guid = win_guid().replace("-", "");
     let mut check = 0;
