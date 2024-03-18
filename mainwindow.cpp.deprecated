@@ -1,0 +1,40 @@
+#include "pch.hpp"
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow) {
+    ui->setupUi(this);
+
+    ui->lineEdit->setValidator(new QRegExpValidator(QRegExp("[0-9]*")));
+
+    fuck = new QAction(tr("&Fuck!"), this);
+    connect(fuck, &QAction::triggered, [this] {
+        QString acc = mkacc(ui->lineEdit->text());
+        ui->textBrowser->append(acc);
+        if (!acc.startsWith("Wrong")) clipboard->setText(acc);
+    });
+
+    connect(ui->pushButton, &QPushButton::clicked, fuck, &QAction::trigger);
+    connect(ui->lineEdit, &QLineEdit::returnPressed, ui->pushButton, &QPushButton::click);
+}
+
+MainWindow::~MainWindow() {
+    delete ui;
+}
+
+QString mkacc(QString phone) {
+    if (phone.size() != 11)
+        return QString("Wrong phone number");
+
+    QString rand = QUuid::createUuid().toString().remove("{").remove("}").remove("-");
+
+    int check = 0;
+    for (int i = 0; i < 3; i++)
+        check += phone[i].unicode() + rand[i].unicode();
+    QString strcheck;
+    strcheck.sprintf("%04d", (check * 177 + 5166) % 10000);
+
+    return rand + strcheck + "01" + phone + "@internet";
+}
